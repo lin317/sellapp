@@ -48,7 +48,13 @@
     </div>
     <router-view></router-view>
     <div class="footer"></div>
-    <div class="shop-car-bar">
+    <!-- 购物车 -->
+    <transition name="slide-fade">
+      <div class="shopcar-board" v-show="shopcarShow">
+        <shopCar></shopCar>
+      </div>
+    </transition>
+    <div class="shop-car-bar" @click="shopcarShow= !shopcarShow">
       <Row>
         <i-col span="6">
           <div class="imgs">
@@ -66,11 +72,16 @@
 </template>
 <script>
 import { getSeller } from "../api/apis";
+import shopCar from"./Shopcar";
 export default {
   data() {
     return {
-      data: { supports: [{ description: "" }] }
+      data: { supports: [{ description: "" }] },
+      shopcarShow: false
     };
+  },
+   components: {
+    shopCar,
   },
   created() {
     //发送初始化请求
@@ -85,15 +96,15 @@ export default {
 </script>
 <style lang="less" scoped>
 .main {
-  flex:1;
- 
+  flex: 1;
+
   .header {
     color: #fff;
     font-size: 12px;
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    
+
     p {
       margin-bottom: 5px;
     }
@@ -157,10 +168,16 @@ export default {
       color: #f60;
     }
   }
-  .footer{
-    margin-top:25px;
+  .footer {
+    margin-top: 25px;
     height: 40px;
-    
+  }
+  .shopcar-board {
+    position: fixed;
+    height: 200px;
+    width: 100%;
+    bottom: 50px;
+    background-color: #f60;
   }
   .shop-car-bar {
     position: fixed;
@@ -194,5 +211,18 @@ export default {
       }
     }
   }
+}
+/* 可以设置不同的进入和离开动画 */
+/* 设置持续时间和动画函数 */
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active for below version 2.1.8 */ {
+  transform: translatey(10px);
+  opacity: 0;
 }
 </style>

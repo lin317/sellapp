@@ -2,7 +2,12 @@
   <div class="goods">
     <div class="left-div">
       <ul class="content">
-        <div @click="clickLeftTitle(i)" v-for="(v,i) in data" :key="i" :class="{leftGoods:true,selected:i==curSelected}">
+        <div
+          @click="clickLeftTitle(i)"
+          v-for="(v,i) in data"
+          :key="i"
+          :class="{leftGoods:true,selected:i==curSelected}"
+        >
           <img style="width:12px" src="../assets/imgs/decrease_1@2x.png" v-show="v.type==1" />
           <img style="width:12px" src="../assets/imgs/discount_1@2x.png" v-show="v.type==2" />
           <img style="width:12px" src="../assets/imgs/invoice_1@2x.png" v-show="v.type==3" />
@@ -26,8 +31,8 @@
                   <span class="oldprice">{{val.oldPrice}}</span>
                 </p>
                 <p class="buy">
-                  <span class="reduce">-</span>
-                  <span class="num">{{val.num}}</span>
+                  <span class="reduce" v-show="val.num>0">-</span>
+                  <span class="num" v-show="val.num>0">{{val.num}}</span>
                   <span class="add">+</span>
                 </p>
               </div>
@@ -46,7 +51,7 @@ import BScroll from "better-scroll"; //引入BetterScroll滚动插件
 export default {
   data() {
     return {
-      data: {},
+      data: [],
       curSelected: 0
     };
   },
@@ -62,18 +67,55 @@ export default {
       click: true
     });
     //右侧滚动板
-    this.rightDiv=new BScroll(document.querySelector(".right-div"));
+    this.rightDiv = new BScroll(document.querySelector(".right-div"), {
+      probeType: 3 //实时派发滚动事件
+    });
+    //形参-滚动距离的对象
+    this.rightDiv.on("scroll", ({ y }) => {
+      let _y = Math.abs(y);
+      //计算右边所有DIV的高度
+      for (let rightObj of this.getDivMath) {
+        // rightObj ===  {min: 0, max: 1078, index: 0}
+        // 根据计算完毕的DIV对象，判断y的区间段！如果处于某一个区间段！那么就把左侧索引设置为对应索引
+        if (_y >= rightObj.min && _y < rightObj.max) {
+          this.curSelected = rightObj.index;
+          return; //结束剩下的所有循环
+        }
+      }
+    });
   },
   methods: {
-    clickLeftTitle(i) {
-      this.curSelected=i;
-      this.rightDiv.scrollToElement(document.getElementById(i),600)
+    clickLeftTitle(index) {
+      this.curSelected = index;
+      this.rightDiv.scrollToElement(document.getElementById(index), 600);
+    }
+  },
+  computed: {
+    getDivMath() {
+      // 算法
+      let arr = [];
+      let total = 0; //之前div所有高度的累加
+      // 根据数组索引，获取每一个div的高度
+      for (let i = 0; i < this.data.length; i++) {
+        //当前div的高度
+        let curDivHeight = document.getElementById(i).offsetHeight;
+        // min: 之前div的高度累加 max: 之前div累加高度 + 自身div的高度
+        arr.push({ min: total, max: total + curDivHeight, index: i });
+        //每循环一次累计之前div的高度
+        total += curDivHeight;
+      }
+      // console.log(arr);
+      return arr;
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
+.selected {
+  background-color: #fff;
+}
+
 .goods {
   display: flex;
   height: 450px;
@@ -83,13 +125,12 @@ export default {
     font-size: 12px;
     background: #f3f6f6;
     overflow: scroll;
-    .leftGoods{
+    .leftGoods {
       height: 60px;
-      margin: 0 8px;
+      padding: 0 10px;
       display: flex;
       align-items: center;
       border-bottom: 1px solid #e0e1e3;
-      
     }
   }
   .right-div {
@@ -133,10 +174,6 @@ export default {
               color: #fff;
               text-align: center;
               background: #00a1dc;
-            }
-            .reduce,
-            .num {
-              display: none !important;
             }
           }
         }

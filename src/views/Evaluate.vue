@@ -1,99 +1,103 @@
 <template>
   <div class="evaluate">
-    <div style="background:#f3f6f6;padding-bottom: 20px">
-      <Card :bordered="false">
-        <Row>
-          <i-col span="10">
-            <i-col span="20">
-              <p>3.9</p>
-              <p>综合评分</p>
-              <p>高于周边商家69.2%</p>
+    <ul class="content">
+      <div style="background:#f3f6f6;padding-bottom: 20px">
+        <Card :bordered="false">
+          <Row>
+            <i-col span="10">
+              <i-col span="20">
+                <p>3.9</p>
+                <p>综合评分</p>
+                <p>高于周边商家69.2%</p>
+              </i-col>
             </i-col>
-          </i-col>
-          <i-col span="14">
-            <i-col span="22">
+            <i-col span="14">
+              <i-col span="22">
+                <Row>
+                  <i-col span="8">服务态度</i-col>
+                  <i-col span="16">
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_off@2x.png" alt />
+                  </i-col>
+                </Row>
+                <Row>
+                  <i-col span="8">服务态度</i-col>
+                  <i-col span="16">
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_on@2x.png" alt />
+                    <img src="../assets/imgs/star24_off@2x.png" alt />
+                  </i-col>
+                </Row>
+                <p>
+                  送达时间
+                  <span>38分钟</span>
+                </p>
+              </i-col>
+            </i-col>
+          </Row>
+        </Card>
+      </div>
+      <div class="card">
+        <Card :bordered="false">
+          <Row slot="title">
+            <i-col span="4">
+              全部
+              <span>57</span>
+            </i-col>
+            <i-col span="4">
+              满意
+              <span>47</span>
+            </i-col>
+            <i-col span="14">
+              不满意
+              <span>10</span>
+            </i-col>
+          </Row>
+
+          <Row>
+            <i-col span="4">✔</i-col>
+            <i-col span="14">只看有内容的评价</i-col>
+          </Row>
+        </Card>
+      </div>
+      <div class="user">
+        <div class="user-list" v-for="(v,i) in data" :key="i">
+          <Row class="list">
+            <i-col span="4">
+              <img :src="v.avatar" alt width="40px" height="40px" />
+            </i-col>
+            <i-col span="20">
               <Row>
-                <i-col span="8">服务态度</i-col>
-                <i-col span="16">
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_off@2x.png" alt />
-                </i-col>
+                <i-col span="12">{{v.username}}</i-col>
+                <i-col span="10">{{v.rateTime|dateFormat('YYYY-MM-DD HH:mm')}}</i-col>
               </Row>
-              <Row>
-                <i-col span="8">服务态度</i-col>
-                <i-col span="16">
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_on@2x.png" alt />
-                  <img src="../assets/imgs/star24_off@2x.png" alt />
-                </i-col>
-              </Row>
-              <p>
-                送达时间
-                <span>38分钟</span>
+              <p class="time">
+                <Rate disabled v-model="v.score" />
+                <span v-show="v.deliveryTime!=''&&v.deliveryTime>0">{{v.deliveryTime}}分钟送达</span>
+              </p>
+              <p class="text">{{v.text}}</p>
+              <p class="rate">
+                <img src="../assets/imgs/thumb_up.svg" alt v-show="v.rateType==1" width="10px" />
+                <img src="../assets/imgs/thumb_down.svg" alt v-show="v.rateType==0" width="10px" />
+                <span v-for="(value,i) in v.recommend" :key="i">{{value}}</span>
               </p>
             </i-col>
-          </i-col>
-        </Row>
-      </Card>
-    </div>
-    <div class="card">
-      <Card :bordered="false">
-        <Row slot="title">
-          <i-col span="4">
-            全部
-            <span>57</span>
-          </i-col>
-          <i-col span="4">
-            满意
-            <span>47</span>
-          </i-col>
-          <i-col span="14">
-            不满意
-            <span>10</span>
-          </i-col>
-        </Row>
-
-        <Row>
-          <i-col span="4">✔</i-col>
-          <i-col span="14">只看有内容的评价</i-col>
-        </Row>
-      </Card>
-    </div>
-    <div class="user">
-      <div class="user-list" v-for="(v,i) in data" :key="i">
-        <Row class="list">
-          <i-col span="4">
-            <img :src="v.avatar" alt width="40px" height="40px" />
-          </i-col>
-          <i-col span="20">
-            <Row>
-              <i-col span="12">{{v.username}}</i-col>
-              <i-col span="10">{{v.rateTime|dateFormat('YYYY-MM-DD HH:mm')}}</i-col>
-            </Row>
-            <p class="time">
-              <Rate disabled v-model="v.score" />
-              <span v-show="v.deliveryTime!=''&&v.deliveryTime>0">{{v.deliveryTime}}分钟送达</span>
-            </p>
-            <p class="text">{{v.text}}</p>
-            <p class="rate">
-              <img src="../assets/imgs/thumb_up.svg" alt v-show="v.rateType==1" width="10px" />
-              <img src="../assets/imgs/thumb_down.svg" alt v-show="v.rateType==0" width="10px" />
-              <span v-for="(value,i) in v.recommend" :key="i">{{value}}</span>
-            </p>
-          </i-col>
-        </Row>
+          </Row>
+        </div>
       </div>
-    </div>
+    </ul>
   </div>
 </template>
 
 <script>
 import { getRatings } from "../api/apis";
+import BScroll from "better-scroll"; //引入BetterScroll滚动插件
+
 export default {
   data() {
     return {
@@ -105,6 +109,9 @@ export default {
       console.log(res.data.data);
       this.data = res.data.data;
     });
+  },
+  mounted() {
+    new BScroll(document.querySelector(".evaluate"));
   }
 };
 </script>
@@ -113,7 +120,6 @@ export default {
 .evaluate {
   height: 400px;
   overflow: scroll;
-  
   .ivu-card {
     .ivu-card-body {
       .ivu-row {
