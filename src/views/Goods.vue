@@ -4,7 +4,7 @@
       <ul class="content">
         <div
           @click="clickLeftTitle(i)"
-          v-for="(v,i) in data"
+          v-for="(v,i) in goodslist"
           :key="i"
           :class="{leftGoods:true,selected:i==curSelected}"
         >
@@ -18,7 +18,7 @@
     </div>
     <div class="right-div">
       <ul class="content">
-        <div v-for="(v,i) in data" :key="i" :id="i">
+        <div v-for="(v,i) in goodslist" :key="i" :id="i">
           <p class="title">{{v.name}}</p>
           <div class="goods-list" v-for="(val,index) in v.foods" :key="index">
             <img :src="val.image" />
@@ -31,9 +31,9 @@
                   <span class="oldprice">{{val.oldPrice}}</span>
                 </p>
                 <p class="buy">
-                  <span class="reduce" v-show="val.num>0">-</span>
+                  <span class="reduce" v-show="val.num>0" @click="clickNumChange(val.name,-1)">-</span>
                   <span class="num" v-show="val.num>0">{{val.num}}</span>
-                  <span class="add">+</span>
+                  <span class="add" @click="clickNumChange(val.name,1)">+</span>
                 </p>
               </div>
             </div>
@@ -51,14 +51,13 @@ import BScroll from "better-scroll"; //引入BetterScroll滚动插件
 export default {
   data() {
     return {
-      data: [],
       curSelected: 0
     };
   },
   created() {
     getGoods().then(res => {
       console.log(res.data.data);
-      this.data = res.data.data;
+      this.$store.commit("inintGoodsList", res.data.data);
     });
   },
   mounted() {
@@ -68,15 +67,13 @@ export default {
     });
     //右侧滚动板
     this.rightDiv = new BScroll(document.querySelector(".right-div"), {
-      probeType: 3 //实时派发滚动事件
+      probeType: 3, //实时派发滚动事件
+      click: true
     });
     //形参-滚动距离的对象
     this.rightDiv.on("scroll", ({ y }) => {
       let _y = Math.abs(y);
-      //计算右边所有DIV的高度
       for (let rightObj of this.getDivMath) {
-        // rightObj ===  {min: 0, max: 1078, index: 0}
-        // 根据计算完毕的DIV对象，判断y的区间段！如果处于某一个区间段！那么就把左侧索引设置为对应索引
         if (_y >= rightObj.min && _y < rightObj.max) {
           this.curSelected = rightObj.index;
           return; //结束剩下的所有循环
@@ -88,24 +85,28 @@ export default {
     clickLeftTitle(index) {
       this.curSelected = index;
       this.rightDiv.scrollToElement(document.getElementById(index), 600);
+    },
+    clickNumChange(name,val){
+      // console.log(,name,val);
+      this.$store.commit('changeGoodsNum',{
+        name,val
+      })
     }
   },
   computed: {
     getDivMath() {
-      // 算法
       let arr = [];
       let total = 0; //之前div所有高度的累加
-      // 根据数组索引，获取每一个div的高度
-      for (let i = 0; i < this.data.length; i++) {
-        //当前div的高度
+      for (let i = 0; i < this.goodslist.length; i++) {
         let curDivHeight = document.getElementById(i).offsetHeight;
-        // min: 之前div的高度累加 max: 之前div累加高度 + 自身div的高度
         arr.push({ min: total, max: total + curDivHeight, index: i });
-        //每循环一次累计之前div的高度
         total += curDivHeight;
       }
       // console.log(arr);
       return arr;
+    },
+    goodslist() {
+      return this.$store.state.goodslist;
     }
   }
 };
@@ -174,6 +175,11 @@ export default {
               color: #fff;
               text-align: center;
               background: #00a1dc;
+            }
+            .num {
+              display: inline-block;
+              width: 30px;
+              text-align: center;
             }
           }
         }
